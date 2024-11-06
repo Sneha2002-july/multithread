@@ -1,0 +1,16 @@
+class SpotAlreadyExistsException extends Exception {
+    public SpotAlreadyExistsException(String message) {
+        super(message);
+    }
+}
+class SpotUnavailableException extends Exception {
+    public SpotUnavailableException(String message) {
+        super(message);
+    }
+}
+
+class SpotNotOccupiedException extends Exception {
+    public SpotNotOccupiedException(String message) {
+        super(message);
+    }
+}
