@@ -1,0 +1,53 @@
+import java.util.*;
+
+public class ParkingLotManager {
+    private Map<Integer, ParkingSpot> parkingSpots = new HashMap<>();
+    private Map<Integer, Long> parkedTime = new HashMap<>(); // Track entry times
+
+    public synchronized void addParkingSpot(ParkingSpot spot) throws SpotAlreadyExistsException {
+        if (parkingSpots.containsKey(spot.getSpotId())) {
+            throw new SpotAlreadyExistsException("Spot ID " + spot.getSpotId() + " already exists.");
+        }
+        parkingSpots.put(spot.getSpotId(), spot);
+    }
+
+    public synchronized void parkVehicle(int spotId, Vehicle vehicle) throws SpotUnavailableException {
+        ParkingSpot spot = parkingSpots.get(spotId);
+        if (spot == null || spot.isOccupied() || !isSpotSuitable(spot, vehicle)) {
+            throw new SpotUnavailableException("Spot " + spotId + " is unavailable.");
+        }
+        spot.setOccupied(true);
+        parkedTime.put(spotId, System.currentTimeMillis());
+    }
+
+    public synchronized void removeVehicle(int spotId) throws SpotNotOccupiedException {
+        ParkingSpot spot = parkingSpots.get(spotId);
+        if (spot == null || !spot.isOccupied()) {
+            throw new SpotNotOccupiedException("Spot " + spotId + " is not occupied.");
+        }
+        spot.setOccupied(false);
+        parkedTime.remove(spotId);
+    }
+
+    public synchronized List<ParkingSpot> viewAvailableSpots() {
+        List<ParkingSpot> availableSpots = new ArrayList<>();
+        for (ParkingSpot spot : parkingSpots.values()) {
+            if (!spot.isOccupied()) {
+                availableSpots.add(spot);
+            }
+        }
+        return availableSpots;
+    }
+
+    public double calculateParkingFee(int spotId) {
+        long entryTime = parkedTime.getOrDefault(spotId, 0L);
+        double hoursParked = (System.currentTimeMillis() - entryTime) / (1000.0 * 60 * 60);
+        return parkingSpots.get(spotId).getPricePerHour() * hoursParked;
+    }
+
+    private boolean isSpotSuitable(ParkingSpot spot, Vehicle vehicle) {
+        return (spot.getSpotType().equalsIgnoreCase("compact") && vehicle.getVehicleType().equalsIgnoreCase("motorcycle"))
+                || (spot.getSpotType().equalsIgnoreCase("regular") && vehicle.getVehicleType().equalsIgnoreCase("car"))
+                || (spot.getSpotType().equalsIgnoreCase("large") && vehicle.getVehicleType().equalsIgnoreCase("truck"));
+    }
+}
