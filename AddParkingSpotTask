@@ -1,0 +1,44 @@
+class AddParkingSpotTask implements Runnable {
+    private ParkingLotManager manager;
+    private ParkingSpot spot;
+
+    public AddParkingSpotTask(ParkingLotManager manager, ParkingSpot spot) {
+        this.manager = manager;
+        this.spot = spot;
+    }
+
+    @Override
+    public void run() {
+        try {
+            manager.addParkingSpot(spot);
+            System.out.println("Added: " + spot);
+        } catch (SpotAlreadyExistsException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
+
+class ParkVehicleTask implements Runnable {
+    private ParkingLotManager manager;
+    private int spotId;
+    private Vehicle vehicle;
+
+    public ParkVehicleTask(ParkingLotManager manager, int spotId, Vehicle vehicle) {
+        this.manager = manager;
+        this.spotId = spotId;
+        this.vehicle = vehicle;
+    }
+
+    @Override
+    public void run() {
+        try {
+            manager.parkVehicle(spotId, vehicle);
+            System.out.println("Parked vehicle: " + vehicle);
+        } catch (SpotUnavailableException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
+
+// Similar implementations for RemoveVehicleTask and ViewAvailableSpotsTask
+
